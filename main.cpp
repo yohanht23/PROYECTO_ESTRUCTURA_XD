@@ -11,6 +11,9 @@
 
 using namespace std;
 
+char origen[999][999];
+char destinacion[999][999];
+
 /*
  * Clase Aerolinea
  * Esta clase es el baseline
@@ -25,6 +28,7 @@ class Aerolinea{
         char destinos[999][999];
         char rutas[999][999];
         int count = 0;
+        bool pl = true;
 
     /*
      * Constructor de la clase
@@ -32,7 +36,7 @@ class Aerolinea{
      * No contiene parametros
      */
     public:Aerolinea(){
-
+        Menu();
     }
 
     /*
@@ -71,6 +75,29 @@ class Aerolinea{
      * No contiene paramentros
      */
     public:void IntroducirDestino(){
+        do{
+            system("cls");
+            cout << "-------- Introduciendo Destinos ----------" << endl;
+            cout << "\n" << "Introduce el nombre del destino: ";
+            cin >> destinos[count];
+
+            cout << "\n\n" << "1. Agregar otro destino";
+            cout << "\n" << "2. Volver al menu principal";
+
+            cout << "\n\n" << "Elige una opcion: ";
+            cin >> resp;
+            count++;
+
+            switch (resp){
+                case 1:
+                    pl = true;
+                    continue;
+                case 2:
+                    pl = false;
+                    break;
+            }
+        }while(pl!=false);
+        Menu();
 
     }
 
@@ -80,6 +107,20 @@ class Aerolinea{
      * No contiene parametros
      */
     public:void IntroducirRuta(){
+        system("cls");
+        int c = 0;
+        int p = 0;
+        cout << "\t" << "----- Rutas ------";
+        for(int a = 0; a < count; a++){
+            cout << "\n" << c <<") " << destinos[a];
+            c++;
+        }
+        void Origen(){
+
+        }
+        void Destinacion(){
+
+        }
 
     }
 

@@ -1,144 +1,232 @@
-/* -------------------------------
- * Proyecto final 2016
- * Estructura de Datos
- * @Autor = Isocrates De La Cruz
- * @Matricula = 2014-2287
- --------------------------------- */
-
 #include <iostream>
-#include <stdlib.h>
-#include <array>
+#include <stack>
+#include <string>
+#include <sstream>
+#include <math.h>
 
 using namespace std;
 
-char origen[999][999];
-char destinacion[999][999];
+bool checkOperator(const string &input);
+void calculateRPN(const string &input, stack<double> &rpnStack);
 
-/*
- * Clase Aerolinea
- * Esta clase es el baseline
- */
-class Aerolinea{
-    /*
-     * Variables
-     * Variables que usaremos mas adelante
-     */
-    public:
-        int resp;
-        char destinos[999][999];
-        char rutas[999][999];
-        int count = 0;
-        bool pl = true;
+int main()
+{
+    stack<double> rpnStack;
+    string input;
+    double number;
 
-    /*
-     * Constructor de la clase
-     * Obligatorio para empezar a correr el programa
-     * No contiene parametros
-     */
-    public:Aerolinea(){
-        Menu();
-    }
+    cout << "==================================" << endl;
+    cout << "Calculadora Notacion Polaca Inversa" << endl;
+    cout << "==================================\n" << endl;
 
-    /*
-     * Metodo Menu
-     * Este es el menu que muestra el programa
-     * No contiene parametros
-     */
-    public:void Menu(){
-        system("cls");
-        cout << "\t" << "-------- Aerolinea ITLA --------" << endl << endl;
-        cout << "\t" << "1. Introducir Destino" << endl;
-        cout << "\t" << "2. Introducir Ruta" << endl;
-        cout << "\t" << "3. Buscar Ruta" << endl << endl;
+    cout << "Inserta lo que quieres calcular: " << endl;
+    cout << "Entra 'C' para calcular\n" << endl;
 
-        cout << "\t" << "Elige una opcion: ";
-        cin >> resp;
+    while (true)
+    {
+        cout << ">>" ;
+        cin >> input;
 
-        switch (resp){
-            case 1:
-                IntroducirDestino();
-                break;
-            case 2:
-                IntroducirRuta();
-                break;
-            case 3:
-                BuscarRuta();
-            default:
-                system("cls");
-                cout << "\t" << "Error al seleccionar una opcion!" << endl;
+        if(istringstream(input) >> number) //take numerical input if double add to stack
+        {
+            rpnStack.push(number);
         }
-    }
 
-    /*
-     * Metodo para Introducir los Destinos
-     * Aqui los destinos se guardaran en la variable: destinos
-     * No contiene paramentros
-     */
-    public:void IntroducirDestino(){
-        do{
-            system("cls");
-            cout << "-------- Introduciendo Destinos ----------" << endl;
-            cout << "\n" << "Introduce el nombre del destino: ";
-            cin >> destinos[count];
+        else if(checkOperator(input)) //if not double check if operator
+        {
+            calculateRPN(input, rpnStack); //call calculation function
+        }
 
-            cout << "\n\n" << "1. Agregar otro destino";
-            cout << "\n" << "2. Volver al menu principal";
+        else if(input == "q" && "Q") //
+        {
+            cout << "Abortando operacion..." << endl;
+            return 0;
+        }
 
-            cout << "\n\n" << "Elige una opcion: ";
-            cin >> resp;
-            count++;
-
-            switch (resp){
-                case 1:
-                    pl = true;
-                    continue;
-                case 2:
-                    pl = false;
-                    break;
+        else if(input == "c" && "C") //if c or C is input calculate RPN on the stack
+        {
+            if(rpnStack.size() < 1)
+            {
+                cout << "No hay nada, por favor inserte algo para calcular..." << endl;
             }
-        }while(pl!=false);
-        Menu();
 
-    }
+            if(rpnStack.size() == 1)
+            {
+                cout << "\nEl resultado del calculo es: " << rpnStack.top() << endl;
+                rpnStack.pop();
 
-    /*
-     * Metodo para introducir las rutas
-     * Aqui se crearan las rutas y se guardaran en la variable: rutas
-     * No contiene parametros
-     */
-    public:void IntroducirRuta(){
-        system("cls");
-        int c = 0;
-        int p = 0;
-        cout << "\t" << "----- Rutas ------";
-        for(int a = 0; a < count; a++){
-            cout << "\n" << c <<") " << destinos[a];
-            c++;
-        }
-        void Origen(){
+                cout << "=======================================================" << endl;
+                cout << "Inserta tus expresiones de nuevo o escribe 'Q' para salir" << endl;
+                cout << "=====================================================\n" << endl;
+            }
 
-        }
-        void Destinacion(){
+            if (rpnStack.size() > 1)
+            {
+                cout << "Demasiados operandos para realizar cálculos" << endl;
 
+                while (!rpnStack.empty())
+                {
+                    rpnStack.pop();
+                }
+                cout << "Entra un nuevo sufijo..." << endl;
+            }
         }
 
+        else
+        {
+            cout << "Expresion invalida" << endl;
+        }
     }
-
-    /*
-     * Metodo para buscar las rutas
-     * Aqui se mostraran las rutas que queramos buscar
-     * No contiene parametros
-     */
-    public:void BuscarRuta(){
-
-    }
-};
-
-/*
- * Metodo main
- * Aqui empieza el programa
- */
-int main(){
-    Aerolinea aerolinea;
 }
 
+/*************************************************
+* Checking for operator                          *
+*************************************************/
+bool checkOperator(const string &input)
+{
+    string operators[] = {"-", "+", "*", "/", "sqrt"};
+
+    for(int i = 0; i < 5; i++)
+    {
+        if(input == operators[i])
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*************************************************
+* RPN Calculation Function                       *
+*************************************************/
+void calculateRPN(const string &input, stack<double> &rpnStack)
+{
+    double firstValue, secondValue, result;
+
+    if (input == "-") //subtraction logic
+    {
+        if (!rpnStack.empty())
+        {
+            secondValue = rpnStack.top();
+            rpnStack.pop();
+            if (!rpnStack.empty())
+            {
+                firstValue = rpnStack.top();
+                rpnStack.pop();
+
+                result = firstValue - secondValue;
+                rpnStack.push(result);
+            }
+            else if (rpnStack.empty())
+            {
+                cout << "Stack Underflow! Necesita más operandos para esta operación" << endl;
+                while (!rpnStack.empty())
+                {
+                    rpnStack.pop();
+                }
+                cout << "Inserta de nuevo." << endl;
+            }
+        }
+
+    }
+
+    else if (input == "+") //addition logic
+    {
+        if (!rpnStack.empty())
+        {
+            secondValue = rpnStack.top();
+            rpnStack.pop();
+            if (!rpnStack.empty())
+            {
+                firstValue = rpnStack.top();
+                rpnStack.pop();
+
+                result = firstValue + secondValue;
+                rpnStack.push(result);
+            }
+            else if (rpnStack.empty())
+            {
+                cout << "Stack Underflow! Necesita más operandos para esta operación" << endl;
+                while (!rpnStack.empty())
+                {
+                    rpnStack.pop();
+                }
+                cout << "Inserta de nuevo" << endl;
+            }
+        }
+    }
+
+    else if (input == "*") //multiplication logic
+    {
+        if (!rpnStack.empty())
+        {
+            secondValue = rpnStack.top();
+            rpnStack.pop();
+            if (!rpnStack.empty())
+            {
+                firstValue = rpnStack.top();
+                rpnStack.pop();
+
+                result = firstValue * secondValue;
+                rpnStack.push(result);
+            }
+            else if (rpnStack.empty())
+            {
+                cout << "Stack Underflow! Necesita más operandos para esta operación" << endl;
+                while (!rpnStack.empty())
+                {
+                    rpnStack.pop();
+                }
+                cout << "Inserta de nuevo" << endl;
+            }
+        }
+    }
+
+    else if (input == "/") //division logic
+    {
+        if (!rpnStack.empty())
+        {
+            secondValue = rpnStack.top();
+            rpnStack.pop();
+            if (secondValue == 0)
+            {
+                cout << "Error: No se puede dividir por un valor por 0" << endl;
+
+                while (!rpnStack.empty())
+                {
+                    rpnStack.pop();
+                }
+                cout << "Inserta de nuevo..." << endl;
+            }
+            else if (!rpnStack.empty())
+            {
+                firstValue = rpnStack.top();
+                rpnStack.pop();
+
+                result = firstValue / secondValue;
+                rpnStack.push(result);
+            }
+            else if (rpnStack.empty())
+            {
+                cout << "Stack Underflow! Necesita más operandos para esta operación" << endl;
+
+                while (!rpnStack.empty())
+                {
+                    rpnStack.pop();
+                }
+
+                cout << "Inserta de nuevo..." << endl;
+            }
+        }
+    }
+
+    else if (input == "sqrt") //square root logic
+    {
+        firstValue = rpnStack.top();
+        rpnStack.pop();
+
+        result = sqrt(firstValue);
+        rpnStack.push(result);
+    }
+}
